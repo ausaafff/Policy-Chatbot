@@ -1,4 +1,4 @@
-# 📑 DocMind – Intelligent Document Question Answering System
+# 📑 Policy Chatbot – Intelligent Poilicy Question Answering System
 
 Policy Chatbot is a production-ready document intelligence application that enables users to interact with PDF-based knowledge sources through natural language queries. It leverages semantic search and large language models to deliver precise, context-grounded answers with source attribution.
 
