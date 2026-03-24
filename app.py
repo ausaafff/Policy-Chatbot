@@ -168,7 +168,7 @@ def gemini_answer(context, question):
 
 def run_qa(vectorstore, question):
     retriever = vectorstore.as_retriever(search_kwargs={"k": 6})
-    docs = retriever.get_relevant_documents(question)
+    docs = retriever.invoke(question)
     context = "\n\n".join(f"[{d.metadata['source']} | Page {d.metadata['page']}]\n{d.page_content}" for d in docs)
     answer = gemini_answer(context, question)
     return {"answer": answer, "sources": docs}
