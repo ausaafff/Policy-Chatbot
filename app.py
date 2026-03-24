@@ -115,22 +115,37 @@ def load_pdfs():
     return documents
 
 def split_and_vectorize_docs(documents):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, length_function=len)
+    # Import updated module (fix for Render issue)
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+    # Split documents
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200,
+        length_function=len
+    )
     chunks = text_splitter.split_documents(documents)
-    
-    if os.path.exists(VECTORSTORE_PATH):
-        shutil.rmtree(VECTORSTORE_PATH)
-    
-    vectorstore = FAISS.from_documents(chunks, embedding=GeminiEmbeddings())
+
+    # Create vectorstore
+    vectorstore = FAISS.from_documents(
+        chunks,
+        embedding=GeminiEmbeddings()
+    )
+
+    # Save safely
+    os.makedirs(VECTORSTORE_PATH, exist_ok=True)
     vectorstore.save_local(VECTORSTORE_PATH)
-    
+
     return vectorstore
 
 def load_vectorstore():
     if not os.path.exists(VECTORSTORE_PATH):
         return None
-    return FAISS.load_local(VECTORSTORE_PATH, GeminiEmbeddings(), allow_dangerous_deserialization=True)
-
+    return FAISS.load_local(
+        VECTORSTORE_PATH,
+        GeminiEmbeddings(),
+        allow_dangerous_deserialization=True
+    )
 # Answer Generation
 def gemini_answer(context, question):
     try:
