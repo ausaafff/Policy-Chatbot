@@ -8,7 +8,7 @@ from PyPDF2 import PdfReader
 from google import genai
 from google.genai import types
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.embeddings.base import Embeddings
 from langchain_community.vectorstores import FAISS
 from langchain.schema import Document
