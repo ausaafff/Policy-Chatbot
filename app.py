@@ -11,7 +11,8 @@ from google.genai import types
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.embeddings.base import Embeddings
 from langchain_community.vectorstores import FAISS
-from langchain.schema import Document
+from langchain_core.documents import Document
+
 
 # Environment & Client Setup
 load_dotenv()
