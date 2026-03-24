@@ -13,15 +13,14 @@ from langchain.embeddings.base import Embeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 
-
 # Environment & Client Setup
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 st.set_page_config(
-    page_title="Policy Chatbot",
+    page_title="SNEHA Policy Q&A",
     page_icon="📑",
-    layout="wide",
+    layout="centered", 
     initial_sidebar_state="expanded",
 )
 
@@ -39,41 +38,44 @@ VECTORSTORE_PATH = "./faiss_index"
 
 os.makedirs(PDF_FOLDER, exist_ok=True)
 
-# CSS Styling
+# CSS Styling (Minimal design)
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
-html, body, [class*="css"] { font-family: 'Roboto', sans-serif; }
+html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 #MainMenu, footer { visibility: hidden; }
-.block-container { padding-top: 2rem; padding-bottom: 2.5rem; }
+.block-container { padding-top: 2rem; padding-bottom: 2.5rem; max-width: 800px; }
 
 /* Sidebar */
 [data-testid="stSidebar"] {
-    background: #f8f9fa;
-    border-right: 1px solid #e0e0e0;
+    background: #fafafa;
+    border-right: 1px solid #eaeaea;
 }
-[data-testid="stSidebar"] * { color: #000 !important; }
 [data-testid="stSidebar"] .stButton button {
-    margin: 10px 0 !important;
-    background: #007bff !important;
-    border: none !important;
-    color: #fff !important;
-    border-radius: 5px !important;
+    width: 100%;
+    margin: 5px 0 !important;
+    background: #ffffff !important;
+    border: 1px solid #dcdcdc !important;
+    color: #333 !important;
+    border-radius: 6px !important;
     font-size: 14px !important;
     padding: 8px 16px !important;
     transition: all 0.2s ease;
 }
 [data-testid="stSidebar"] .stButton button:hover {
-    background-color: #0056b3 !important;
+    border-color: #999 !important;
+    background-color: #f0f0f0 !important;
 }
 
-/* Main */
-.page-header { margin-bottom: 2rem; }
-.page-title  { font-size: 28px; color: #333; margin: 0; }
-.page-subtitle { font-size: 15px; color: #666; margin-top: 5px; }
+/* Header & Minimal UI */
+.header-container { text-align: center; margin-bottom: 2.5rem; }
+.page-title  { font-size: 24px; font-weight: 600; color: #111; margin: 0; }
+.page-subtitle { font-size: 14px; color: #666; margin-top: 4px; font-weight: 300; }
 
-.chat-box { border: 1px solid #e0e0e0; margin-top: 20px; padding: 15px; border-radius: 8px; }
+/* Chat Elements */
+.user-msg { background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
+.bot-msg { background-color: #ffffff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e5e5; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 </style>
 """, unsafe_allow_html=True)
 
@@ -116,7 +118,6 @@ def load_pdfs():
     return documents
 
 def split_and_vectorize_docs(documents):
-
     # Split documents
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
@@ -145,6 +146,7 @@ def load_vectorstore():
         GeminiEmbeddings(),
         allow_dangerous_deserialization=True
     )
+
 # Answer Generation
 def gemini_answer(context, question):
     try:
@@ -181,10 +183,16 @@ if "chat_history" not in st.session_state:
 
 # Sidebar
 with st.sidebar:
-    st.title("Policy Chatbot 📑")
-    st.write("Askquestions about policies and get answers")
-
-    if st.button("Index PDFs"):
+    # SNEHA Logo moved here
+    st.markdown("""
+    <div style="margin-bottom: 20px;">
+        <img src="https://iili.io/frR6CJa.md.png" style="max-width: 140px;" alt="SNEHA Logo">
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("### Admin Panel")
+    
+    if st.button("Index Policy PDFs"):
         docs = load_pdfs()
         if docs:
             st.session_state.vectorstore = split_and_vectorize_docs(docs)
@@ -192,9 +200,9 @@ with st.sidebar:
         else:
             st.error("No PDFs found to index.")
     
-    if st.button("Clear Chat"):
+    if st.button("Clear Current Chat"):
         st.session_state.chat_history = []
-        st.success("Chat history cleared.")
+        st.rerun() 
     
     if st.button("Reset Index"):
         if os.path.exists(VECTORSTORE_PATH):
@@ -202,29 +210,37 @@ with st.sidebar:
         st.session_state.vectorstore = None
         st.success("Index reset successfully!")
 
-# Main Content
+# Main Content (Clean Header)
 st.markdown("""
-<div class='page-header'>
-    <h1 class='page-title'>Ask Your Documents</h1>
-    <p class='page-subtitle'>Receive answers grounded strictly in your PDFs</p>
+<div class='header-container'>
+    <h1 class='page-title'>Policy Q&A</h1>
+    <p class='page-subtitle'>Ask questions and get precise answers from company policies.</p>
 </div>
 """, unsafe_allow_html=True)
 
 if not st.session_state.vectorstore:
-    st.info("No documents indexed yet. Please index your PDFs first.")
+    st.info("No policy documents indexed yet. Please index your PDFs using the sidebar.")
     st.stop()
 
-for chat in st.session_state.chat_history:
-    st.write(f"**Q:** {chat['question']}")
-    st.write(f"**A:** {chat['answer']}", unsafe_allow_html=True)
-
-question = st.text_input("Ask anything about your documents...")
+# Input box at the top of the interaction area
+question = st.text_input("What would you like to know?", placeholder="e.g., What is the leave policy?", label_visibility="collapsed")
 
 if question:
-    with st.spinner("Generating response..."):
+    with st.spinner("Analyzing SNEHA policies..."):
         result = run_qa(st.session_state.vectorstore, question)
-    st.session_state.chat_history.append({"question": question, "answer": result["answer"]})
     
-    st.markdown("<hr>", unsafe_allow_html=True)
-    st.write(f"**Q:** {question}")
-    st.write(f"**A:** {result['answer']}", unsafe_allow_html=True)
+    # We still append to history logic-wise, but we will ONLY display the latest one
+    st.session_state.chat_history.append({"question": question, "answer": result["answer"]})
+
+# Display ONLY the latest chat interaction
+if st.session_state.chat_history:
+    latest_chat = st.session_state.chat_history[-1]
+    
+    st.markdown(f"""
+    <div class="user-msg">
+        <strong>You:</strong><br>{latest_chat['question']}
+    </div>
+    <div class="bot-msg">
+        <strong>SNEHA Bot:</strong><br>{latest_chat['answer']}
+    </div>
+    """, unsafe_allow_html=True)
