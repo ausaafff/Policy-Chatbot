@@ -116,8 +116,6 @@ def load_pdfs():
     return documents
 
 def split_and_vectorize_docs(documents):
-    # Import updated module (fix for Render issue)
-    from langchain_text_splitters import RecursiveCharacterTextSplitter
 
     # Split documents
     text_splitter = RecursiveCharacterTextSplitter(
