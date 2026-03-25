@@ -183,7 +183,7 @@ if "chat_history" not in st.session_state:
 
 # Sidebar
 with st.sidebar:
-    # SNEHA Logo moved here
+
     st.markdown("""
     <div style="margin-bottom: 20px;">
         <img src="https://iili.io/frR6CJa.md.png" style="max-width: 140px;" alt="SNEHA Logo">
@@ -222,17 +222,17 @@ if not st.session_state.vectorstore:
     st.info("No policy documents indexed yet. Please index your PDFs using the sidebar.")
     st.stop()
 
-# Input box at the top of the interaction area
+
 question = st.text_input("What would you like to know?", placeholder="e.g., What is the leave policy?", label_visibility="collapsed")
 
 if question:
     with st.spinner("Analyzing SNEHA policies..."):
         result = run_qa(st.session_state.vectorstore, question)
     
-    # We still append to history logic-wise, but we will ONLY display the latest one
+
     st.session_state.chat_history.append({"question": question, "answer": result["answer"]})
 
-# Display ONLY the latest chat interaction
+
 if st.session_state.chat_history:
     latest_chat = st.session_state.chat_history[-1]
     
